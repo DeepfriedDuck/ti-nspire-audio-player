@@ -181,4 +181,11 @@ def main():
     print(f"Effective PDM rate: {PDM_RATE}Hz")
 
 if __name__ == "__main__":
-    create_song("Sweet Talkin Womman", "ELO", "./song.mp3", "./cover.png", "./resources", "Sweet_Talkin_Womman.tns")
+    create_song(
+        "Sweet Talkin Womman",
+        "ELO",
+        "./assets/samples/song.mp3",
+        "./assets/samples/cover.png",
+        "./resources",
+        "Sweet_Talkin_Womman.tns",
+    )

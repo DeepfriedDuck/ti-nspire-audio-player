@@ -11,54 +11,61 @@ GCCFLAGS = -Wall -W -marm
 LDFLAGS =
 ZEHNFLAGS = --name ""
 
+SRC_DIR = src
+BUILD_DIR = build
+EXE = test
+CALC_DEST = /
+
 ifeq ($(DEBUG),FALSE)
 	GCCFLAGS += -Os
 else
 	GCCFLAGS += -O0 -g
 endif
 
-OBJS = $(patsubst ./%.c,$(DISTDIR)/%.o,$(shell find . \( -path ./working_files -o -path ./tests \) -prune -o -name \*.c -print))
-OBJS += $(patsubst ./%.cpp,$(DISTDIR)/%.o,$(shell find . \( -path ./working_files -o -path ./tests \) -prune -o -name \*.cpp -print))
-OBJS += $(patsubst ./%.S,$(DISTDIR)/%.o,$(shell find . \( -path ./working_files -o -path ./tests \) -prune -o -name \*.S -print))
-EXE = test
-DISTDIR = build
-CALC_DEST = /
-vpath %.tns $(DISTDIR)
-vpath %.elf $(DISTDIR)
+SRCS_C   = $(shell find $(SRC_DIR) -name \*.c)
+SRCS_CPP = $(shell find $(SRC_DIR) -name \*.cpp)
+SRCS_S   = $(shell find $(SRC_DIR) -name \*.S)
+
+OBJS  = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS_C))
+OBJS += $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS_CPP))
+OBJS += $(patsubst $(SRC_DIR)/%.S,$(BUILD_DIR)/%.o,$(SRCS_S))
+
+vpath %.tns $(BUILD_DIR)
+vpath %.elf $(BUILD_DIR)
 
 .PHONY: all clean deploy run
 
-all: $(DISTDIR)/$(EXE).tns
+all: $(BUILD_DIR)/$(EXE).tns
 
-$(DISTDIR)/%.o: %.c | $(DISTDIR)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	mkdir -p $(dir $@)
 	$(GCC) $(GCCFLAGS) -c $< -o $@
 
-$(DISTDIR)/%.o: %.cpp | $(DISTDIR)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	mkdir -p $(dir $@)
 	$(GXX) $(GCCFLAGS) -c $< -o $@
 	
-$(DISTDIR)/%.o: %.S | $(DISTDIR)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.S | $(BUILD_DIR)
 	mkdir -p $(dir $@)
 	$(AS) -c $< -o $@
 
-$(DISTDIR)/$(EXE).elf: $(OBJS) | $(DISTDIR)
+$(BUILD_DIR)/$(EXE).elf: $(OBJS) | $(BUILD_DIR)
 	$(LD) $^ -o $@ $(LDFLAGS)
 
-$(DISTDIR)/$(EXE).tns: $(DISTDIR)/$(EXE).elf | $(DISTDIR)
+$(BUILD_DIR)/$(EXE).tns: $(BUILD_DIR)/$(EXE).elf | $(BUILD_DIR)
 	$(GENZEHN) --input $^ --output $@.zehn $(ZEHNFLAGS)
 	make-prg $@.zehn $@
 	rm $@.zehn
 
-$(DISTDIR):
-	mkdir -p $(DISTDIR)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -f $(OBJS) $(DISTDIR)/$(EXE).tns $(DISTDIR)/$(EXE).elf $(DISTDIR)/$(EXE).tns.zehn
+	rm -f $(OBJS) $(BUILD_DIR)/$(EXE).tns $(BUILD_DIR)/$(EXE).elf $(BUILD_DIR)/$(EXE).tns.zehn
 
-deploy: $(DISTDIR)/$(EXE).tns
+deploy: $(BUILD_DIR)/$(EXE).tns
 	$(NSPIRECTL) send $< $(CALC_DEST)
 
 run: deploy
-	@echo "Uploaded $(DISTDIR)/$(EXE).tns to $(CALC_DEST) on calculator."
+	@echo "Uploaded $(BUILD_DIR)/$(EXE).tns to $(CALC_DEST) on calculator."
 	@echo "Open it on the calculator to run."

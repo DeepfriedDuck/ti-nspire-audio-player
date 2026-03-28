@@ -1,0 +1,29 @@
+[project]
+name = "ti-nspire-audio-player"
+version = "0.1.0"
+description = "TI-Nspire Ndless audio player and ATNS tooling"
+authors = [
+    {name = "Deepfried Duck", email = "deepfriedduck.opensourceapis@gmail.com"},
+]
+dependencies = ["Pillow>=12.1.1"]
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[dependency-groups]
+test = [
+    "pytest>=9.0.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.scripts]
+convert = "python tools/wav2uart.py"
+test = "pytest"
+
