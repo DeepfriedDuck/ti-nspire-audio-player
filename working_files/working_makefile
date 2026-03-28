@@ -17,9 +17,11 @@ else
 	GCCFLAGS += -O0 -g
 endif
 
-OBJS = $(patsubst ./%.c,$(DISTDIR)/%.o,$(shell find . \( -path ./working_files -o -path ./tests \) -prune -o -name \*.c -print))
-OBJS += $(patsubst ./%.cpp,$(DISTDIR)/%.o,$(shell find . \( -path ./working_files -o -path ./tests \) -prune -o -name \*.cpp -print))
-OBJS += $(patsubst ./%.S,$(DISTDIR)/%.o,$(shell find . \( -path ./working_files -o -path ./tests \) -prune -o -name \*.S -print))
+OBJCOPY = arm-none-eabi-objcopy
+OBJS = $(patsubst ./%.c,$(DISTDIR)/%.o,$(shell find . -name \*.c))
+OBJS += $(patsubst ./%.cpp,$(DISTDIR)/%.o,$(shell find . -name \*.cpp))
+OBJS += $(patsubst ./%.S,$(DISTDIR)/%.o,$(shell find . -name \*.S))
+OBJS += $(DISTDIR)/song.o
 EXE = test
 DISTDIR = build
 CALC_DEST = /
@@ -41,6 +43,9 @@ $(DISTDIR)/%.o: %.cpp | $(DISTDIR)
 $(DISTDIR)/%.o: %.S | $(DISTDIR)
 	mkdir -p $(dir $@)
 	$(AS) -c $< -o $@
+
+$(DISTDIR)/song.o: song.bin | $(DISTDIR)
+	$(OBJCOPY) -I binary -O elf32-littlearm -B arm $< $@
 
 $(DISTDIR)/$(EXE).elf: $(OBJS) | $(DISTDIR)
 	$(LD) $^ -o $@ $(LDFLAGS)
