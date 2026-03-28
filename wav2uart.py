@@ -181,4 +181,4 @@ def main():
     print(f"Effective PDM rate: {PDM_RATE}Hz")
 
 if __name__ == "__main__":
-    create_song("Brasilian Skies", "Masayoshi Takanaka", "./song.mp3", "./cover.png", "./resources", "Brasilian_Skies.tns")
+    create_song("Sweet Talkin Womman", "ELO", "./song.mp3", "./cover.png", "./resources", "Sweet_Talkin_Womman.tns")
